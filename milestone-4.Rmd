@@ -1,0 +1,33 @@
+---
+title: "Milestone 4"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r}
+fifa19 <- read_csv("data/fifa19.zip")
+rawselection_fifa19 <- fifa19 %>% select(Name, Age, Nationality, Club, Overall, Value, Position) %>%
+  filter(Nationality == "Netherlands") %>%
+  arrange(desc(Overall)) %>%
+  head(100) %>%
+  group_by(Club) %>%
+  summarise(avg = mean(Overall)) %>%
+  ungroup()
+
+ggplot(rawselection_fifa19, aes(x=Club, y=avg)) +geom_col()
+```
+
+```{r}
+rrawselection_fifa19 <- fifa19 %>% select(Name, Age, Nationality, Club, Overall, Value, Position) %>%
+  filter(Club %in% c("Liverpool", "Manchester City", "FC Barcelona", "FC Bayern München", "Ajax", "Jueventus", "Atlético Madrid", "Paris Saint-Germain", "Chelsea", "Shakhtar Donetsk", "Napoli", "FC Porto", "	Borussia Dortmund", "PSV", "Arsenal")) %>%
+  group_by(Club) %>%
+  summarise(median = median(Overall)) %>%
+  ungroup()
+
+ggplot(rrawselection_fifa19, aes(x=reorder(Club, -median), y=median)) +geom_col() + coord_cartesian(ylim=c(60,90)) + theme(axis.text.x = element_text(angle = 90))
+```
+
