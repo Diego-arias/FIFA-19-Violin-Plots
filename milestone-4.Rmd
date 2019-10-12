@@ -3,31 +3,64 @@ title: "Milestone 4"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
+library(janitor)
 ```
 
-```{r}
+```{r, loading in the fifa 19 data, include = FALSE}
 fifa19 <- read_csv("data/fifa19.zip")
-rawselection_fifa19 <- fifa19 %>% select(Name, Age, Nationality, Club, Overall, Value, Position) %>%
-  filter(Nationality == "Netherlands") %>%
-  arrange(desc(Overall)) %>%
-  head(100) %>%
-  group_by(Club) %>%
-  summarise(avg = mean(Overall)) %>%
-  ungroup()
-
-ggplot(rawselection_fifa19, aes(x=Club, y=avg)) +geom_col()
 ```
 
-```{r}
+```{r, loading in the pes 19 data, include = FALSE}
+pes19 <- read_csv("data/PES2019.csv") %>%
+  
+  #I realized a lot of the columns had spaces in between, so I used clean_names() from the janitor package to clean it up and replace the spaces with underscores
+  clean_names()
+
+```
+
+```{r, loading in the fifa 18 data, include = FALSE}
+fifa18 <- read_csv("data/fifa18.csv") %>% 
+  mutate(fifa18_rating = Overall, fifa18_potential = Potential ) %>%
+  select(Name, fifa18_rating, fifa18_potential) %>%
+  arrange(desc(fifa18_rating))
+```
+
+
+```{r, future direction of project: combining fifa 18 and fifa 19 dataset}
+#in the future I will try to combine the fifa 18 and 19 datasets into one. I tried messing around with this for this milestone, but I still don't know what the end goal of it would be, so in order to make a good plot, I decided to go with another plot
+
+#ffifa19 <- fifa19 %>% arrange(desc(Overall)) %>% head(10) %>%
+  #mutate(fifa19_rating = Overall) %>%
+  #select(Name, Age, Nationality, Club, fifa19_rating, Value, Position) 
+#total <- merge(ffifa19,fifa18,by="Name") %>%
+  #ggplot( aes(x=fifa18_overall, y= fifa19_rating, color = Name)) + geom_point()
+
+
+```
+
+```{r, distribution of age in 10 best teams}
 rrawselection_fifa19 <- fifa19 %>% select(Name, Age, Nationality, Club, Overall, Value, Position) %>%
-  filter(Club %in% c("Liverpool", "Manchester City", "FC Barcelona", "FC Bayern München", "Ajax", "Jueventus", "Atlético Madrid", "Paris Saint-Germain", "Chelsea", "Shakhtar Donetsk", "Napoli", "FC Porto", "	Borussia Dortmund", "PSV", "Arsenal")) %>%
-  group_by(Club) %>%
+  filter(Club %in% c("Liverpool", "Manchester City", "FC Barcelona", "FC Bayern München", "Ajax", "Juventus", "Atlético Madrid", "Paris Saint-Germain", "Chelsea", "Shakhtar Donetsk")) %>%
+                     
+
+  group_by(Club, Age) %>%
   summarise(median = median(Overall)) %>%
   ungroup()
 
-ggplot(rrawselection_fifa19, aes(x=reorder(Club, -median), y=median)) +geom_col() + coord_cartesian(ylim=c(60,90)) + theme(axis.text.x = element_text(angle = 90))
+ggplot(rrawselection_fifa19, aes(x=reorder(Club, Age), y=Age, color = Club)) + geom_violin() + stat_summary(fun.y=mean, geom="point", color= "orange",size=3) +
+ geom_jitter(shape=16, color = "black", size = .5, position=position_jitter(0.2)) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme(legend.position = "none") +
+  theme(axis.title.x=element_blank()) +
+  labs(title = "Distribution of Age in 10 highest ranked soccer teams", caption = "Data from FIFA 19 Database")
+  
+  
+#ggplot(rrawselection_fifa19, aes(x=reorder(Club, -median), y=median)) +geom_col() + coord_cartesian(ylim=c(60,90)) + theme(axis.text.x = element_text(angle = 90))
 ```
+
+
+
 
