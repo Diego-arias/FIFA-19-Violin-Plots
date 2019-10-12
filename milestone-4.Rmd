@@ -42,30 +42,99 @@ fifa18 <- read_csv("data/fifa18.csv") %>%
 
 ```
 
-Fifa 19 is the most popular soccer video game on the market is one of biggest parts of my college weekends. In addition to spending a lot of time playing FIFA with my roomates, I also love to look at FIFA databases and track how players have grown over the years. I am not yet sure in what scope this project will go, but as of now I am really enjoying looking at the data. For milestone #4 I looked at the 10 best soccer teams (according to Football Database) and used the Fifa 19 data that I loaded in to look at the age distributions of each of these teams. It was both really interesting and promosing that my favorite team, Liverpool, has the lowest mean age out of the 10 teams. Still, the mean ages of the teams were all pretty similar, which  says a lot about the nature of soccer in general.
+Fifa 19 is the most popular soccer video game on the market is one of biggest parts of my college weekends. In addition to spending a lot of time playing FIFA with my roomates, I also love looking at FIFA databases and tracking how players have grown over the years. I am not yet sure in what scope this project will go, but as of now I am really enjoying looking at the data. For milestone #4 I looked at the 10 best soccer teams (according to Football Database) and used the Fifa 19 data that I loaded in to look at the age distributions of each of these teams. It was both really interesting and logical that Ajax had the lowest mean age out of the 10 teams since they are known for their top teir youth academy and for selling their stars to bigger teams once they get older.
 
-I hope you enjoy my plot :)
 
 ```{r, distribution of age in 10 best teams}
-rrawselection_fifa19 <- fifa19 %>% select(Name, Age, Nationality, Club, Overall, Value, Position) %>%
-  filter(Club %in% c("Liverpool", "Manchester City", "FC Barcelona", "FC Bayern München", "Ajax", "Juventus", "Atlético Madrid", "Paris Saint-Germain", "Chelsea", "Shakhtar Donetsk")) %>%
+#I created a new variable that will use the data from fifa 19
+
+medianage_fifa19 <- fifa19 %>% 
+  
+  #At this point I decided to collect key columns that I think would be useful
+  #to look at in the future (since the fifa 19 database has over 20 columns,
+  #with many of them not being useful for the scope of the analysis I plan to
+  #do)
+  
+  select(Name, Age, Nationality, Club, Overall, Value, Position) %>%
+  
+  #In the future, I would love to analyze fifa ratings across leagues, but I
+  #have struggled to classify all the teams into leagues. I plan on going to
+  #office hours to try to get some help with this. Basically, my idea would be
+  #to create a new column that specifies what league the team that the player
+  #plays in is in. Since this will probably be very difficult, I will probably
+  #only be able to do it for a subset of the data (I guess we will see in future
+  #milestones) For this milestone I decided to instead pick the 10 best soccer
+  #teams in the world according to the football database
+  
+  filter(Club %in% c("Liverpool", "Manchester City", "FC Barcelona", "FC Bayern München", "Ajax", "Juventus", "Atlético Madrid", "Paris Saint-Germain", "Chelsea", "Shakhtar Donetsk"))
                      
 
-  group_by(Club, Age) %>%
-  summarise(median = median(Overall)) %>%
-  ungroup()
+#I will be using this filtered out data frame to create a plot. I thought about
+#what interesting things I could show in a plot, and I came up with the idea of
+#doing a boxplot to show how each of these 10 teams differs in some way. I
+#decided that it would be interesting to see the teams ages, since I know some
+#teams, like Ajax, are especially young in general. After a few google searches,
+#I decided that it would be much more interesting to do a violin plot.
 
-ggplot(rrawselection_fifa19, aes(x=reorder(Club, Age), y=Age, color = Club)) + geom_violin() + stat_summary(fun.y=mean, geom="point", color= "orange",size=3) +
- geom_jitter(shape=16, color = "black", size = .5, position=position_jitter(0.2)) +
+ggplot(medianage_fifa19, 
+       
+       #For the x acis, I used the clubs, but reordered them in order of
+       #ascending average age. For the Y axis, I used age since that's what I
+       #want to measure. i further made the color equal to the club to make my
+       #plot prettier and distinguish the violin plots
+       
+       aes(x=reorder(Club, Age), y=Age, color = Club)) + 
+  
+  #this specifies that I want a violin plot
+  
+  geom_violin() + 
+  
+  #In order to show more information per plot, I decided to show what the mean
+  #age of each club is and denote it with a big red dot
+  
+  stat_summary(fun.y=mean, geom="point", color= "red",size=3) +
+  
+  #To further show the distribution of data, I used geom_jitter to show the age
+  #of each individual player per team
+  
+  geom_jitter(shape=16, color = "black", size = .5, position=position_jitter(0.2)) +
+  
+  #The team names were all jumbled up on the plot, so I made them be displayed
+  #vertically
+  
   theme(axis.text.x = element_text(angle = 90)) +
+  
+  #I also got rid of the legend because the connection between the team and
+  #color was already denoted by the y-axis
+  
   theme(legend.position = "none") +
+  
+  #This got rid of the "reorder(Club, Age)" axis title that was created by my
+  #reordering code
+  
   theme(axis.title.x=element_blank()) +
-  labs(title = "Distribution of Age in Elite Soccer Teams", caption = "Data from Kaggle FIFA 19 Database")
+  
+  #To finish up my plot, I decided to add a meaningful title for the plot and a
+  #source
+  
+  labs(title = "Distribution of Age in Top Soccer Teams", caption = "Source: Kaggle FIFA 19 Database")
   
   
 #ggplot(rrawselection_fifa19, aes(x=reorder(Club, -median), y=median)) +geom_col() + coord_cartesian(ylim=c(60,90)) + theme(axis.text.x = element_text(angle = 90))
 ```
 
+I then decided to modify the previous code to make a violin plot that instead analyzes the distribution of each team's player rating. This motivates me to consider if I can later on measure the connection between teams' age and rating distribtuion (since teams with more younger players should be lower in rating as those players have not yet hit their potential). One quick aside comment is that it is pretty interesting how plotting each individual player in the violin plot with a dot allows us to see some of the superstars. For example the highest rated players in Juventus and Barcelona are Ronaldo and Messi respectively.
 
+```{r, distribution of player rating in 10 best teams}
+medianoverall_fifa19 <- fifa19 %>% select(Name, Age, Nationality, Club, Overall, Value, Position) %>%
+  filter(Club %in% c("Liverpool", "Manchester City", "FC Barcelona", "FC Bayern München", "Ajax", "Juventus", "Atlético Madrid", "Paris Saint-Germain", "Chelsea", "Shakhtar Donetsk"))
+                     
+ggplot(medianoverall_fifa19, aes(x=reorder(Club, Overall), y=Overall, color = Club)) + geom_violin() + stat_summary(fun.y=mean, geom="point", color= "orange",size=3) +
+ geom_jitter(shape=16, color = "black", size = .5, position=position_jitter(0.2)) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  theme(legend.position = "none") +
+  theme(axis.title.x=element_blank()) +
+  labs(title = "Distribution of FIFA Player Ratings in Top Soccer Teams", caption = "Data from Kaggle FIFA 19 Database")
+```
 
 
