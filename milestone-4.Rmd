@@ -1,5 +1,6 @@
 ---
 title: "Milestone 4"
+author: "Diego Arias"
 output: html_document
 ---
 
@@ -41,6 +42,10 @@ fifa18 <- read_csv("data/fifa18.csv") %>%
 
 ```
 
+Fifa 19 is the most popular soccer video game on the market is one of biggest parts of my college weekends. In addition to spending a lot of time playing FIFA with my roomates, I also love to look at FIFA databases and track how players have grown over the years. I am not yet sure in what scope this project will go, but as of now I am really enjoying looking at the data. For milestone #4 I looked at the 10 best soccer teams (according to Football Database) and used the Fifa 19 data that I loaded in to look at the age distributions of each of these teams. It was both really interesting and promosing that my favorite team, Liverpool, has the lowest mean age out of the 10 teams. Still, the mean ages of the teams were all pretty similar, which  says a lot about the nature of soccer in general.
+
+I hope you enjoy my plot :)
+
 ```{r, distribution of age in 10 best teams}
 rrawselection_fifa19 <- fifa19 %>% select(Name, Age, Nationality, Club, Overall, Value, Position) %>%
   filter(Club %in% c("Liverpool", "Manchester City", "FC Barcelona", "FC Bayern München", "Ajax", "Juventus", "Atlético Madrid", "Paris Saint-Germain", "Chelsea", "Shakhtar Donetsk")) %>%
@@ -55,7 +60,7 @@ ggplot(rrawselection_fifa19, aes(x=reorder(Club, Age), y=Age, color = Club)) + g
   theme(axis.text.x = element_text(angle = 90)) +
   theme(legend.position = "none") +
   theme(axis.title.x=element_blank()) +
-  labs(title = "Distribution of Age in 10 highest ranked soccer teams", caption = "Data from FIFA 19 Database")
+  labs(title = "Distribution of Age in Elite Soccer Teams", caption = "Data from Kaggle FIFA 19 Database")
   
   
 #ggplot(rrawselection_fifa19, aes(x=reorder(Club, -median), y=median)) +geom_col() + coord_cartesian(ylim=c(60,90)) + theme(axis.text.x = element_text(angle = 90))
